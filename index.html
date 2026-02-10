@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Préstamos Semana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Préstamos de Semana</title>
 
   <style>
     :root{
       --bg:#f6f7fb;
-      --card:#ffffff;
+      --card:#fff;
       --text:#0f172a;
       --muted:#64748b;
       --stroke:rgba(15,23,42,.10);
@@ -20,7 +20,6 @@
       --green:#10b981;
       --blue:#2563eb;
     }
-
     *{ box-sizing:border-box; }
     body{
       margin:0;
@@ -31,8 +30,7 @@
         radial-gradient(900px 500px at 110% 0%, rgba(16,185,129,.08), transparent 60%),
         var(--bg);
     }
-
-    .wrap{ max-width: 1100px; margin: 0 auto; padding: 18px; display:flex; flex-direction:column; gap:14px; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:18px; display:flex; flex-direction:column; gap:14px; }
 
     .topbar{
       background:var(--card);
@@ -41,15 +39,13 @@
       border-radius:var(--r);
       padding:14px 16px;
       display:flex;
-      gap:12px;
       align-items:center;
       justify-content:space-between;
+      gap:12px;
       flex-wrap:wrap;
     }
-    .title{
-      display:flex; flex-direction:column; gap:4px;
-    }
-    h1{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
+    .title{ display:flex; flex-direction:column; gap:4px; }
+    h1{ margin:0; font-size:16px; font-weight:950; letter-spacing:.2px; }
     .sub{ font-family:var(--mono); font-size:12px; color:var(--muted); }
 
     .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
@@ -79,16 +75,6 @@
       display:flex; align-items:center; gap:8px;
     }
     .btn:hover{ background:#f8fafc; }
-
-    .grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:12px;
-    }
-    @media(min-width:820px){
-      .grid{ grid-template-columns: 1fr 1fr; }
-      .grid.full{ grid-template-columns: 1fr; }
-    }
 
     .card{
       background:var(--card);
@@ -134,7 +120,6 @@
       .kpis{ grid-template-columns:1fr 1fr; }
       .kpis .wide{ grid-column:1/-1; }
     }
-
     .kpi{
       border:1px solid var(--stroke);
       background:#fff;
@@ -160,7 +145,6 @@
     thead th{
       text-align:left;
       font-size:12px;
-      color:#0b1220;
       background:#f1f5f9;
       border-bottom:1px solid var(--stroke);
       padding:10px 12px;
@@ -172,215 +156,197 @@
       padding:10px 12px;
       border-bottom:1px solid rgba(15,23,42,.06);
       font-size:13px;
-      vertical-align:middle;
       white-space:nowrap;
     }
     tbody tr:hover{ background:#f8fafc; }
     .right{ text-align:right; }
-    .muted{ color:var(--muted); }
-    .tag{
-      font-family:var(--mono);
-      font-size:11px;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background:rgba(37,99,235,.06);
-      color:#1e40af;
-    }
 
-    .loading{
+    .msg{
       padding:14px;
       border-radius:var(--r);
       border:1px dashed var(--stroke);
       background:#fff;
       color:var(--muted);
       font-family:var(--mono);
+      line-height:1.35;
     }
 
     @media print{
       .controls{ display:none; }
       body{ background:#fff; }
       .wrap{ max-width:none; padding:0; }
-      .topbar, .card, .tableWrap{ box-shadow:none; }
+      .topbar,.card,.tableWrap{ box-shadow:none; }
       thead th{ position:static; }
     }
   </style>
+
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const get = (k, d="") => {
+      const v = qs.get(k);
+      return (v === null || v === undefined) ? d : v;
+    };
+
+    const safeNum = (x) => {
+      const n = Number(x);
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    const moneyRD = (n) => {
+      const num = Number(n || 0);
+      return "RD$ " + num.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function render(){
+      // Acepta l/d o fechalunes/fechadomingo
+      const l = get("l", get("fechalunes",""));
+      const d = get("d", get("fechadomingo",""));
+      const g = get("g", ""); // BI,BP,AB,PS,BG
+      const r = get("r", ""); // id|BI|BP|AB|PS|BG~...
+
+      document.getElementById("range").textContent =
+        (l && d) ? `Semana: ${l} → ${d}` : "Semana: (sin fechas)";
+
+      // Si no viene r, mostramos error CLARO (nada de “cargando”)
+      if (!r){
+        document.getElementById("msg").innerHTML =
+          "Faltan datos en la URL.<br><br>" +
+          "Debes enviar el parámetro <strong>r</strong> con los grupos (ej: <code>r=1|100|80|20|5|85~2|...</code>).<br>" +
+          "Opcional: <strong>g</strong> para el total general (ej: <code>g=BI,BP,AB,PS,BG</code>).";
+        document.getElementById("msg").style.display = "block";
+        document.getElementById("generalCard").style.display = "none";
+        document.getElementById("tableWrap").style.display = "none";
+        return;
+      }
+
+      // General card (si viene g)
+      if (g){
+        const parts = g.split(",");
+        const generalObj = {
+          bi: safeNum(parts[0]),
+          bp: safeNum(parts[1]),
+          ab: safeNum(parts[2]),
+          ps: safeNum(parts[3]),
+          bg: safeNum(parts[4]),
+        };
+
+        document.getElementById("generalCard").innerHTML = `
+          <div class="card-h">
+            <div class="name">TOTAL GENERAL</div>
+            <div class="pill">${escapeHtml(l)} → ${escapeHtml(d)}</div>
+          </div>
+          <div class="kpis">
+            <div class="kpi"><div class="label">Balance inicial</div><div class="value">${moneyRD(generalObj.bi)}</div></div>
+            <div class="kpi"><div class="label">Total de abonos</div><div class="value green">${moneyRD(generalObj.ab)}</div></div>
+            <div class="kpi"><div class="label">Préstamos de semana</div><div class="value red">${moneyRD(generalObj.ps)}</div></div>
+            <div class="kpi"><div class="label">Balance pendiente</div><div class="value red">${moneyRD(generalObj.bp)}</div></div>
+            <div class="kpi wide"><div class="label">Balance general</div><div class="value">${moneyRD(generalObj.bg)}</div></div>
+          </div>
+        `;
+        document.getElementById("generalCard").style.display = "block";
+      } else {
+        document.getElementById("generalCard").style.display = "none";
+      }
+
+      // Rows parse
+      const allRows = r.split("~").map(x => x.trim()).filter(Boolean).map(line => {
+        const p = line.split("|");
+        return {
+          id: (p[0] ?? "").trim(),
+          bi: safeNum(p[1]),
+          bp: safeNum(p[2]),
+          ab: safeNum(p[3]),
+          ps: safeNum(p[4]),
+          bg: safeNum(p[5]),
+        };
+      });
+
+      // Search + sort
+      let sortDesc = true;
+      const q = document.getElementById("q");
+      const sortBtn = document.getElementById("sortBtn");
+
+      function draw(){
+        const term = (q.value || "").trim().toLowerCase();
+        let filtered = allRows;
+        if (term) filtered = allRows.filter(x => String(x.id).toLowerCase().includes(term));
+
+        filtered.sort((a,b) => sortDesc ? (b.bp - a.bp) : (a.bp - b.bp));
+
+        document.getElementById("rows").innerHTML = filtered.map(row => `
+          <tr>
+            <td><strong>GRUPO ${escapeHtml(row.id)}</strong></td>
+            <td class="right">${moneyRD(row.bi)}</td>
+            <td class="right green">${moneyRD(row.ab)}</td>
+            <td class="right red">${moneyRD(row.ps)}</td>
+            <td class="right ${row.bp < 0 ? "red" : ""}">${moneyRD(row.bp)}</td>
+            <td class="right">${moneyRD(row.bg)}</td>
+          </tr>
+        `).join("");
+
+        document.getElementById("tableWrap").style.display = "block";
+        document.getElementById("msg").style.display = "none";
+      }
+
+      sortBtn.addEventListener("click", () => {
+        sortDesc = !sortDesc;
+        sortBtn.textContent = `Orden: Pendiente ${sortDesc ? "↓" : "↑"}`;
+        draw();
+      });
+
+      q.addEventListener("input", draw);
+
+      draw();
+    }
+  </script>
 </head>
 
-<body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="title">
-      <h1>Reporte de Préstamos por Semana</h1>
-      <div class="sub" id="range">Semana: —</div>
-    </div>
-
-    <div class="controls">
-      <div class="search">
-        <span class="muted" style="font-family:var(--mono);font-size:12px;">🔎</span>
-        <input id="q" placeholder="Buscar grupo (ej: 32)..." autocomplete="off" />
+<body onload="render()">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>Préstamos de Semana</h1>
+        <div class="sub" id="range">Semana: —</div>
       </div>
-      <button class="btn" id="sortBtn">Orden: Pendiente ↓</button>
-      <button class="btn" onclick="window.print()">Imprimir</button>
-    </div>
-  </div>
 
-  <div class="card" id="generalCard" style="display:none;"></div>
-
-  <div class="tableWrap" id="tableWrap" style="display:none;">
-    <table>
-      <thead>
-        <tr>
-          <th>Grupo</th>
-          <th class="right">Balance Inicial</th>
-          <th class="right">Total Abonos</th>
-          <th class="right">Préstamos Semana</th>
-          <th class="right">Balance Pendiente</th>
-          <th class="right">Balance General</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
-
-  <div class="loading" id="loading">Cargando reporte…</div>
-</div>
-
-<script>
-  const qs = new URLSearchParams(location.search);
-  const get = (k, d="") => (qs.get(k) ?? d);
-
-  // Params compactos
-  const l = get("l", "");
-  const d = get("d", "");
-  const g = get("g", "");     // BI,BP,AB,PS,BG
-  const r = get("r", "");     // id|BI|BP|AB|PS|BG~...
-
-  const moneyRD = (n) => {
-    const num = Number(n || 0);
-    return "RD$ " + num.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
-
-  function safeNum(x){ const n = Number(x); return Number.isFinite(n) ? n : 0; }
-
-  function buildGeneralCard(obj){
-    return `
-      <div class="card-h">
-        <div class="name">
-          <span class="tag">GENERAL</span>
-          Totales de la semana
+      <div class="controls">
+        <div class="search">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--muted)">🔎</span>
+          <input id="q" placeholder="Buscar grupo (ej: 32)..." autocomplete="off" />
         </div>
-        <div class="pill">${escapeHtml(l)} → ${escapeHtml(d)}</div>
+        <button class="btn" id="sortBtn">Orden: Pendiente ↓</button>
+        <button class="btn" onclick="window.print()">Imprimir</button>
       </div>
-      <div class="kpis">
-        <div class="kpi"><div class="label">Balance inicial</div><div class="value">${moneyRD(obj.balanceInicial)}</div></div>
-        <div class="kpi"><div class="label">Total de abonos</div><div class="value green">${moneyRD(obj.totalAbonos)}</div></div>
-        <div class="kpi"><div class="label">Préstamos de semana</div><div class="value red">${moneyRD(obj.prestamosSemana)}</div></div>
-        <div class="kpi"><div class="label">Balance pendiente</div><div class="value red">${moneyRD(obj.balancePendiente)}</div></div>
-        <div class="kpi wide"><div class="label">Balance general</div><div class="value">${moneyRD(obj.balanceGeneral)}</div></div>
-      </div>
-    `;
-  }
+    </div>
 
-  function escapeHtml(str){
-    return String(str || "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
+    <div class="card" id="generalCard" style="display:none;"></div>
 
-  function parseData(){
-    // rango
-    document.getElementById("range").textContent =
-      (l && d) ? `Semana: ${l} → ${d}` : "Semana: (sin fechas)";
+    <div class="tableWrap" id="tableWrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Grupo</th>
+            <th class="right">Balance Inicial</th>
+            <th class="right">Total Abonos</th>
+            <th class="right">Préstamos Semana</th>
+            <th class="right">Balance Pendiente</th>
+            <th class="right">Balance General</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
 
-    // general
-    let generalObj = null;
-    if (g) {
-      const parts = g.split(",");
-      // g = BI,BP,AB,PS,BG
-      generalObj = {
-        balanceInicial: safeNum(parts[0]),
-        balancePendiente: safeNum(parts[1]),
-        totalAbonos: safeNum(parts[2]),
-        prestamosSemana: safeNum(parts[3]),
-        balanceGeneral: safeNum(parts[4]),
-      };
-
-      const gc = document.getElementById("generalCard");
-      gc.innerHTML = buildGeneralCard(generalObj);
-      gc.style.display = "block";
-    }
-
-    // rows
-    const rows = [];
-    if (r) {
-      const items = r.split("~").map(x => x.trim()).filter(Boolean);
-      for (const line of items) {
-        const p = line.split("|");
-        // id|BI|BP|AB|PS|BG
-        const id = (p[0] ?? "").trim();
-        rows.push({
-          id,
-          balanceInicial: safeNum(p[1]),
-          balancePendiente: safeNum(p[2]),
-          totalAbonos: safeNum(p[3]),
-          prestamosSemana: safeNum(p[4]),
-          balanceGeneral: safeNum(p[5]),
-        });
-      }
-    }
-
-    return rows;
-  }
-
-  // UI render
-  let sortDesc = true; // pendiente desc
-  let allRows = [];
-
-  function render(){
-    const term = (document.getElementById("q").value || "").trim().toLowerCase();
-
-    let filtered = allRows;
-    if (term) {
-      filtered = allRows.filter(x => String(x.id).toLowerCase().includes(term));
-    }
-
-    filtered.sort((a,b) => {
-      const va = a.balancePendiente, vb = b.balancePendiente;
-      return sortDesc ? (vb - va) : (va - vb);
-    });
-
-    const tbody = document.getElementById("rows");
-    tbody.innerHTML = filtered.map(row => `
-      <tr>
-        <td><strong>GRUPO ${escapeHtml(row.id)}</strong></td>
-        <td class="right">${moneyRD(row.balanceInicial)}</td>
-        <td class="right green">${moneyRD(row.totalAbonos)}</td>
-        <td class="right red">${moneyRD(row.prestamosSemana)}</td>
-        <td class="right ${row.balancePendiente < 0 ? "red" : ""}">${moneyRD(row.balancePendiente)}</td>
-        <td class="right">${moneyRD(row.balanceGeneral)}</td>
-      </tr>
-    `).join("");
-
-    document.getElementById("tableWrap").style.display = "block";
-  }
-
-  document.getElementById("sortBtn").addEventListener("click", () => {
-    sortDesc = !sortDesc;
-    document.getElementById("sortBtn").textContent = `Orden: Pendiente ${sortDesc ? "↓" : "↑"}`;
-    render();
-  });
-  document.getElementById("q").addEventListener("input", render);
-
-  // Init
-  (function init(){
-    allRows = parseData();
-    document.getElementById("loading").style.display = "none";
-    render();
-  })();
-</script>
+    <div class="msg" id="msg" style="display:none;"></div>
+  </div>
 </body>
 </html>
