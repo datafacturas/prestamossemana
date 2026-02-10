@@ -98,7 +98,7 @@
 
 <script>
   // ✅ PON AQUÍ TU WEB APP URL
-  const API_URL = "https://script.google.com/macros/s/AKFYCB_TU_ID/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzovtDWBgD6RWMZAaN-PKb6ZFCGiMZ7H7pnWHz8IPvb1vSxWg6cFiSHHF1w0bwE1L_k/exec";
 
   const qs = new URLSearchParams(location.search);
   const get = (k, d="") => (qs.get(k) ?? d);
