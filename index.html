@@ -4,213 +4,382 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Préstamos Semana</title>
+
   <style>
     :root{
-      --bg:#0b0f17; --card:#121a27; --stroke:rgba(255,255,255,.08);
-      --text:#eaf0ff; --muted:rgba(234,240,255,.65);
-      --green:#2ee59d; --red:#ff4d4d;
-      --r:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --stroke:rgba(15,23,42,.10);
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --r:18px;
+      --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
       --sans: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      --red:#ef4444;
+      --green:#10b981;
+      --blue:#2563eb;
     }
-    *{box-sizing:border-box}
+
+    *{ box-sizing:border-box; }
     body{
-      margin:0; padding:18px; font-family:var(--sans); color:var(--text);
-      background: radial-gradient(1200px 700px at 20% -10%, rgba(46,229,157,.16), transparent 55%),
-                  radial-gradient(900px 600px at 110% 10%, rgba(255,77,77,.12), transparent 60%),
-                  var(--bg);
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% -10%, rgba(37,99,235,.10), transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, rgba(16,185,129,.08), transparent 60%),
+        var(--bg);
     }
-    .wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 18px; display:flex; flex-direction:column; gap:14px; }
+
     .topbar{
-      display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
-      padding:10px 12px;border:1px solid var(--stroke);background:rgba(255,255,255,.03);
-      border-radius:var(--r);box-shadow:var(--shadow);
+      background:var(--card);
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow);
+      border-radius:var(--r);
+      padding:14px 16px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
     }
-    h1{margin:0;font-size:16px;font-weight:900}
-    .sub{font-family:var(--mono);font-size:12px;color:var(--muted)}
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .title{
+      display:flex; flex-direction:column; gap:4px;
+    }
+    h1{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
+    .sub{ font-family:var(--mono); font-size:12px; color:var(--muted); }
+
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
     .search{
-      display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:999px;
-      border:1px solid var(--stroke);background:rgba(255,255,255,.03);min-width:240px;
+      display:flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background:#fff;
+      min-width:260px;
     }
-    .search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:13px}
-    .pill{
-      padding:9px 12px;border-radius:999px;border:1px solid var(--stroke);
-      background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;font-size:12px;font-weight:800;
+    .search input{
+      width:100%;
+      border:0; outline:0;
+      font-size:13px;
+      background:transparent;
+      color:var(--text);
     }
-    .pill:hover{background:rgba(255,255,255,.06)}
-    .section{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;text-transform:uppercase}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .btn{
+      border:1px solid var(--stroke);
+      background:#fff;
+      border-radius:999px;
+      padding:10px 12px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+      display:flex; align-items:center; gap:8px;
+    }
+    .btn:hover{ background:#f8fafc; }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    @media(min-width:820px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+      .grid.full{ grid-template-columns: 1fr; }
+    }
+
     .card{
-      border-radius:var(--r);border:1px solid var(--stroke);
-      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
-      box-shadow:var(--shadow);overflow:hidden;
+      background:var(--card);
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow);
+      border-radius:var(--r);
+      overflow:hidden;
     }
-    .ch{
-      padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;
-      border-bottom:1px solid var(--stroke);background:rgba(0,0,0,.10);
+    .card-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--stroke);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(37,99,235,.06), rgba(37,99,235,0));
     }
-    .name{font-weight:950;font-size:14px}
-    .badge{
-      border:1px solid var(--stroke);background:rgba(255,255,255,.03);
-      padding:6px 10px;border-radius:999px;font-size:11px;color:var(--muted);font-family:var(--mono);
+    .name{
+      font-weight:950;
+      font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .pill{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted);
+      background:rgba(15,23,42,.04);
+      border:1px solid var(--stroke);
+      padding:6px 10px;
+      border-radius:999px;
       white-space:nowrap;
     }
-    .kpis{padding:10px 14px 14px;display:grid;grid-template-columns:1fr;gap:10px}
+
+    .kpis{
+      padding:12px 14px 14px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    @media(min-width:520px){
+      .kpis{ grid-template-columns:1fr 1fr; }
+      .kpis .wide{ grid-column:1/-1; }
+    }
+
     .kpi{
-      display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:14px;
-      border:1px solid var(--stroke);background:rgba(18,26,39,.55);
+      border:1px solid var(--stroke);
+      background:#fff;
+      border-radius:14px;
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
     }
-    .label{font-size:12px;color:var(--muted);font-weight:800}
-    .value{font-size:15px;font-weight:950;font-family:var(--mono);text-align:right}
-    .red{color:var(--red)} .green{color:var(--green)}
+    .label{ font-size:12px; color:var(--muted); font-weight:800; }
+    .value{ font-family:var(--mono); font-weight:950; font-size:14px; text-align:right; }
+    .red{ color:var(--red); }
+    .green{ color:var(--green); }
+
+    .tableWrap{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow);
+      border-radius:var(--r);
+      overflow:hidden;
+    }
+    table{ width:100%; border-collapse:collapse; }
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color:#0b1220;
+      background:#f1f5f9;
+      border-bottom:1px solid var(--stroke);
+      padding:10px 12px;
+      position:sticky; top:0;
+      z-index:2;
+      white-space:nowrap;
+    }
+    tbody td{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(15,23,42,.06);
+      font-size:13px;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+    tbody tr:hover{ background:#f8fafc; }
+    .right{ text-align:right; }
+    .muted{ color:var(--muted); }
+    .tag{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(37,99,235,.06);
+      color:#1e40af;
+    }
+
     .loading{
-      padding:14px;border:1px dashed var(--stroke);border-radius:var(--r);
-      background:rgba(255,255,255,.02);font-family:var(--mono);color:var(--muted)
+      padding:14px;
+      border-radius:var(--r);
+      border:1px dashed var(--stroke);
+      background:#fff;
+      color:var(--muted);
+      font-family:var(--mono);
     }
-    @media(min-width:760px){ .kpis{grid-template-columns:1fr 1fr} .search{min-width:320px} }
+
+    @media print{
+      .controls{ display:none; }
+      body{ background:#fff; }
+      .wrap{ max-width:none; padding:0; }
+      .topbar, .card, .tableWrap{ box-shadow:none; }
+      thead th{ position:static; }
+    }
   </style>
 </head>
+
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div>
-      <h1>Préstamos Semana</h1>
-      <div class="sub" id="range">—</div>
+    <div class="title">
+      <h1>Reporte de Préstamos por Semana</h1>
+      <div class="sub" id="range">Semana: —</div>
     </div>
+
     <div class="controls">
       <div class="search">
-        <span style="opacity:.75;font-family:var(--mono);font-size:12px;">🔎</span>
-        <input id="q" placeholder="Buscar grupo…" autocomplete="off" />
+        <span class="muted" style="font-family:var(--mono);font-size:12px;">🔎</span>
+        <input id="q" placeholder="Buscar grupo (ej: 32)..." autocomplete="off" />
       </div>
-      <button class="pill" id="sortBtn">Orden: Balance pendiente ↓</button>
+      <button class="btn" id="sortBtn">Orden: Pendiente ↓</button>
+      <button class="btn" onclick="window.print()">Imprimir</button>
     </div>
   </div>
 
-  <div class="section">General</div>
-  <div id="general"></div>
+  <div class="card" id="generalCard" style="display:none;"></div>
 
-  <div class="section">Grupos</div>
-  <div id="list" class="grid"></div>
+  <div class="tableWrap" id="tableWrap" style="display:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>Grupo</th>
+          <th class="right">Balance Inicial</th>
+          <th class="right">Total Abonos</th>
+          <th class="right">Préstamos Semana</th>
+          <th class="right">Balance Pendiente</th>
+          <th class="right">Balance General</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
 
-  <div id="loading" class="loading">Cargando datos…</div>
+  <div class="loading" id="loading">Cargando reporte…</div>
 </div>
 
 <script>
-  // ✅ PON AQUÍ TU WEB APP URL
-  const API_URL = "https://script.google.com/macros/s/AKfycbzovtDWBgD6RWMZAaN-PKb6ZFCGiMZ7H7pnWHz8IPvb1vSxWg6cFiSHHF1w0bwE1L_k/exec";
-
   const qs = new URLSearchParams(location.search);
   const get = (k, d="") => (qs.get(k) ?? d);
 
-  const moneyRD = (n) => "RD$ " + Number(n||0).toLocaleString("es-DO",{minimumFractionDigits:2,maximumFractionDigits:2});
+  // Params compactos
+  const l = get("l", "");
+  const d = get("d", "");
+  const g = get("g", "");     // BI,BP,AB,PS,BG
+  const r = get("r", "");     // id|BI|BP|AB|PS|BG~...
 
-  const buildCard = (title, meta, r) => {
-    const bp = Number(r.balancePendiente||0);
-    const ab = Number(r.totalAbonos||0);
-    const ps = Number(r.prestamosSemana||0);
-
-    return `
-      <div class="card">
-        <div class="ch">
-          <div class="name">${escapeHtml(title)}</div>
-          <div class="badge">${escapeHtml(meta||"")}</div>
-        </div>
-        <div class="kpis">
-          <div class="kpi"><div class="label">Balance inicial</div><div class="value">${moneyRD(r.balanceInicial)}</div></div>
-          <div class="kpi"><div class="label">Balance pendiente</div><div class="value red">${moneyRD(bp)}</div></div>
-          <div class="kpi"><div class="label">Total de abonos</div><div class="value green">${moneyRD(ab)}</div></div>
-          <div class="kpi"><div class="label">Préstamos de semana</div><div class="value ${ps>0?"red":""}">${moneyRD(ps)}</div></div>
-          <div class="kpi" style="grid-column:1/-1;"><div class="label">Balance general</div><div class="value">${moneyRD(r.balanceGeneral)}</div></div>
-        </div>
-      </div>
-    `;
+  const moneyRD = (n) => {
+    const num = Number(n || 0);
+    return "RD$ " + num.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
+  function safeNum(x){ const n = Number(x); return Number.isFinite(n) ? n : 0; }
+
+  function buildGeneralCard(obj){
+    return `
+      <div class="card-h">
+        <div class="name">
+          <span class="tag">GENERAL</span>
+          Totales de la semana
+        </div>
+        <div class="pill">${escapeHtml(l)} → ${escapeHtml(d)}</div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="label">Balance inicial</div><div class="value">${moneyRD(obj.balanceInicial)}</div></div>
+        <div class="kpi"><div class="label">Total de abonos</div><div class="value green">${moneyRD(obj.totalAbonos)}</div></div>
+        <div class="kpi"><div class="label">Préstamos de semana</div><div class="value red">${moneyRD(obj.prestamosSemana)}</div></div>
+        <div class="kpi"><div class="label">Balance pendiente</div><div class="value red">${moneyRD(obj.balancePendiente)}</div></div>
+        <div class="kpi wide"><div class="label">Balance general</div><div class="value">${moneyRD(obj.balanceGeneral)}</div></div>
+      </div>
+    `;
+  }
+
   function escapeHtml(str){
-    return String(str||"")
-      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    return String(str || "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
-  // JSONP loader (para saltar CORS desde GitHub)
-  function loadJSONP(url) {
-    return new Promise((resolve, reject) => {
-      const cb = "cb_" + Math.random().toString(36).slice(2);
-      window[cb] = (data) => {
-        cleanup();
-        resolve(data);
+  function parseData(){
+    // rango
+    document.getElementById("range").textContent =
+      (l && d) ? `Semana: ${l} → ${d}` : "Semana: (sin fechas)";
+
+    // general
+    let generalObj = null;
+    if (g) {
+      const parts = g.split(",");
+      // g = BI,BP,AB,PS,BG
+      generalObj = {
+        balanceInicial: safeNum(parts[0]),
+        balancePendiente: safeNum(parts[1]),
+        totalAbonos: safeNum(parts[2]),
+        prestamosSemana: safeNum(parts[3]),
+        balanceGeneral: safeNum(parts[4]),
       };
-      const script = document.createElement("script");
-      script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
-      script.onerror = () => { cleanup(); reject(new Error("JSONP error")); };
-      document.head.appendChild(script);
 
-      function cleanup() {
-        delete window[cb];
-        script.remove();
+      const gc = document.getElementById("generalCard");
+      gc.innerHTML = buildGeneralCard(generalObj);
+      gc.style.display = "block";
+    }
+
+    // rows
+    const rows = [];
+    if (r) {
+      const items = r.split("~").map(x => x.trim()).filter(Boolean);
+      for (const line of items) {
+        const p = line.split("|");
+        // id|BI|BP|AB|PS|BG
+        const id = (p[0] ?? "").trim();
+        rows.push({
+          id,
+          balanceInicial: safeNum(p[1]),
+          balancePendiente: safeNum(p[2]),
+          totalAbonos: safeNum(p[3]),
+          prestamosSemana: safeNum(p[4]),
+          balanceGeneral: safeNum(p[5]),
+        });
       }
+    }
+
+    return rows;
+  }
+
+  // UI render
+  let sortDesc = true; // pendiente desc
+  let allRows = [];
+
+  function render(){
+    const term = (document.getElementById("q").value || "").trim().toLowerCase();
+
+    let filtered = allRows;
+    if (term) {
+      filtered = allRows.filter(x => String(x.id).toLowerCase().includes(term));
+    }
+
+    filtered.sort((a,b) => {
+      const va = a.balancePendiente, vb = b.balancePendiente;
+      return sortDesc ? (vb - va) : (va - vb);
     });
+
+    const tbody = document.getElementById("rows");
+    tbody.innerHTML = filtered.map(row => `
+      <tr>
+        <td><strong>GRUPO ${escapeHtml(row.id)}</strong></td>
+        <td class="right">${moneyRD(row.balanceInicial)}</td>
+        <td class="right green">${moneyRD(row.totalAbonos)}</td>
+        <td class="right red">${moneyRD(row.prestamosSemana)}</td>
+        <td class="right ${row.balancePendiente < 0 ? "red" : ""}">${moneyRD(row.balancePendiente)}</td>
+        <td class="right">${moneyRD(row.balanceGeneral)}</td>
+      </tr>
+    `).join("");
+
+    document.getElementById("tableWrap").style.display = "block";
   }
 
-  // --- UI ---
-  let rows = [];
-  let sortDesc = true;
-  const list = document.getElementById("list");
-  const general = document.getElementById("general");
-  const loading = document.getElementById("loading");
-  const q = document.getElementById("q");
-  const sortBtn = document.getElementById("sortBtn");
-
-  function render() {
-    const term = (q.value||"").trim().toLowerCase();
-    let filtered = rows.filter(r => String(r.grupo||"").toLowerCase().includes(term));
-
-    filtered.sort((a,b) => sortDesc
-      ? (Number(b.balancePendiente||0) - Number(a.balancePendiente||0))
-      : (Number(a.balancePendiente||0) - Number(b.balancePendiente||0))
-    );
-
-    list.innerHTML = filtered.map(r => buildCard(
-      String(r.grupo||"").replace("GRUPO","").trim() || "—",
-      "Grupo",
-      r
-    )).join("");
-  }
-
-  sortBtn.addEventListener("click", () => {
+  document.getElementById("sortBtn").addEventListener("click", () => {
     sortDesc = !sortDesc;
-    sortBtn.textContent = `Orden: Balance pendiente ${sortDesc ? "↓" : "↑"}`;
+    document.getElementById("sortBtn").textContent = `Orden: Pendiente ${sortDesc ? "↓" : "↑"}`;
     render();
   });
-  q.addEventListener("input", render);
+  document.getElementById("q").addEventListener("input", render);
 
-  (async function init(){
-    const fechalunes = get("fechalunes","");
-    const fechadomingo = get("fechadomingo","");
-    document.getElementById("range").textContent =
-      (fechalunes && fechadomingo) ? `Semana: ${fechalunes} → ${fechadomingo}` : "Semana: (desde Sheets)";
-
-    const API_URL = "https://script.google.com/macros/s/AKfycbzovtDWBgD6RWMZAaN-PKb6ZFCGiMZ7H7pnWHz8IPvb1vSxWg6cFiSHHF1w0bwE1L_k/exec";
-
-const url =
-  API_URL
-  + "?fechalunes=" + encodeURIComponent(fechalunes)
-  + "&fechadomingo=" + encodeURIComponent(fechadomingo);
-
-
-    try{
-      const data = await loadJSONP(url);
-      loading.style.display = "none";
-
-      // general + grupos
-      general.innerHTML = buildCard("GENERAL", data?.meta?.fechalunes ? `${data.meta.fechalunes} → ${data.meta.fechadomingo}` : "Resumen", data.general || {});
-      rows = Array.isArray(data.grupos) ? data.grupos : [];
-      render();
-    }catch(err){
-      loading.textContent = "Error cargando datos. Revisa la URL del Web App y permisos.";
-      console.error(err);
-    }
+  // Init
+  (function init(){
+    allRows = parseData();
+    document.getElementById("loading").style.display = "none";
+    render();
   })();
 </script>
 </body>
